@@ -3,23 +3,19 @@ import { useEffect, useRef, useState } from "react";
 type Message = {
   sender: string;
   text: string;
-  timestamp: number;
+  timestamp: string;
 };
 
-type Props = {
-  sender: string;
-};
-
-export default function Chat({ sender }: Props) {
+export default function Chat({ sender }: { sender: string }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState("");
   const socketRef = useRef<WebSocket | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    socketRef.current = new WebSocket("wss://chat-backend-kg2j.onrender.com/");
+    socketRef.current = new WebSocket("wss://chat-backend-kg2j.onrender.com");
 
-    socketRef.current.onmessage = (event: MessageEvent) => {
+    socketRef.current.onmessage = (event) => {
       const msg = JSON.parse(event.data);
       if (msg.type === "history") {
         setMessages(msg.data);
@@ -28,9 +24,7 @@ export default function Chat({ sender }: Props) {
       }
     };
 
-    return () => {
-      socketRef.current?.close();
-    };
+    return () => socketRef.current?.close();
   }, []);
 
   useEffect(() => {
@@ -44,34 +38,58 @@ export default function Chat({ sender }: Props) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="bg-white p-4 rounded shadow h-[70vh] overflow-y-auto">
-        {messages.map((msg, idx) => (
-          <div key={idx} className="mb-2">
-            <span className="font-semibold">{msg.sender}</span>:{" "}
-            <span>{msg.text}</span>
-            <div className="text-sm text-gray-400">
-              {new Date(msg.timestamp).toLocaleTimeString()}
+    <div className="h-screen overflow-hidden">
+      {/* Fixed Header */}
+      <header className="bg-blue-600 text-white text-center py-4 shadow-md text-2xl font-bold fixed top-0 left-0 right-0 w-full z-10">
+        AnyChat
+      </header>
+
+      {/* Main container under header */}
+      <div className="pt-20 h-[calc(100vh-80px)] flex flex-col max-w-2xl mx-auto w-full px-4">
+        {/* Scrollable message container (expanded a bit more downwards) */}
+        <div className="flex-1 p-4 bg-white rounded shadow-sm scrollable-container min-h-[70%]">
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`flex flex-col ${
+                msg.sender === sender ? "items-end" : "items-start"
+              }`}
+            >
+              <div
+                className={`px-4 py-2 rounded-xl max-w-xs break-words ${
+                  msg.sender === sender
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                <span className="block font-semibold">{msg.sender}</span>
+                <span>{msg.text}</span>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {new Date(msg.timestamp).toLocaleTimeString()}
+              </div>
             </div>
-          </div>
-        ))}
-        <div ref={bottomRef} />
-      </div>
-      <div className="mt-2 flex">
-        <input
-          type="text"
-          className="border p-2 flex-1 rounded-l"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type a message..."
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        />
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded-r"
-          onClick={sendMessage}
-        >
-          Send
-        </button>
+          ))}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Fixed input section */}
+        <div className="mt-4 flex items-center gap-2">
+          <input
+            type="text"
+            className="flex-1 border rounded-xl px-4 py-2 outline-none shadow-sm focus:ring focus:ring-blue-200"
+            placeholder="Type your message..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          />
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition"
+            onClick={sendMessage}
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );

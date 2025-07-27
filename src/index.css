@@ -6,3 +6,16 @@ body {
   margin: 0;
   font-family: sans-serif;
 }
+html,
+body {
+  overflow: hidden;
+}
+/* Hide scrollbar but still keep scroll functionality */
+.scrollable-container {
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollable-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
