@@ -17,7 +17,7 @@ export default function Chat({ sender }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    socketRef.current = new WebSocket("wss://YOUR_BACKEND_URL");
+    socketRef.current = new WebSocket("wss://chat-backend-kg2j.onrender.com/");
 
     socketRef.current.onmessage = (event: MessageEvent) => {
       const msg = JSON.parse(event.data);
