@@ -45,7 +45,7 @@ export default function Chat({ sender }: { sender: string }) {
       </header>
 
       {/* Main container under header */}
-      <div className="pt-20 h-[100vh] flex flex-col max-w-2xl mx-auto w-full px-4">
+      <div className="pt-28 h-[100vh] flex flex-col max-w-2xl mx-auto w-full px-4">
         {/* Scrollable message container (expanded a bit more downwards) */}
         <div className="flex-1 p-4 bg-white rounded shadow-sm scrollable-container min-h-[70%]">
           {messages.map((msg, idx) => (
